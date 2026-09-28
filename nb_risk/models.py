@@ -189,6 +189,13 @@ class VulnerabilityAssignment(NetBoxModel):
     def __str__(self):
         return f"{self.asset} - {self.vulnerability.name}"
    
+
+    def get_absolute_url(self):
+        # A hozzárendelésnek nincs saját részletező oldala: a sebezhetőség „Affected Assets” fülére mutatunk.
+        # (A NetBoxModel alapértelmezése egy nem létező nézetre hivatkozna, ami a változásnaplóban és a
+        # keresésben NoReverseMatch hibát okozna.)
+        return reverse('plugins:nb_risk:vulnerability_affected_assets', kwargs={'pk': self.vulnerability_id})
+
     class Meta:
         ordering = ('pk',)
         constraints = (

@@ -1,0 +1,6 @@
+{
+  "threatsource:api_list_objects": 11,
+  "threatsource:list_objects_with_permission": 19,
+  "vulnerability:list_objects_with_permission": 22,
+  "vulnerabilityassignment:api_list_objects": 14
+}

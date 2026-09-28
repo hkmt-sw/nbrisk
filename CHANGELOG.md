@@ -1,5 +1,25 @@
 # Changelog
 
+## 47.0.0 (28/09/2026)
+
+NetBox 4.7 support (fork: hkmt-sw/nbrisk).
+
+* Require NetBox 4.7.x (`min_version` 4.7.0, `max_version` 4.7.99); dev stack on NetBox v4.7.1
+* Add missing migration `0012_cpemapping_tags_customfields` (`CPEMapping.custom_field_data` encoder, `tags` through model)
+* API: wire `filterset_class` on all viewsets – REST filtering (e.g. `?cve=`) was silently ignored before
+* API: expose KEV, EPSS, CVSS, notes, tags, custom fields and timestamps on `VulnerabilitySerializer`
+* API: `CPEMapping.platform` / `device_type` are now writable nested fields (creating CPE mappings via the API failed with 400)
+* Filters: add KEV and EPSS fields to `VulnerabilityFilterSet`
+* Filters: choice fields (`threat_type`, `capability`, `relevance`, `likelihood`, `impact`, `category`, `cpe_part`)
+  use `MultipleChoiceFilter` – the NetBox filter forms send lists, so UI filtering on these fields was silently ignored
+* URLs: import views are registered as `<model>_bulk_import` (the name NetBox 4.7's *Import* button resolves);
+  the old `<model>_import` names are kept as aliases
+* `VulnerabilityAssignment.get_absolute_url()` points to the vulnerability's *Affected Assets* tab
+  (the default pointed to a non-existent view and raised `NoReverseMatch` in the changelog / search)
+* Choices: readable aliases (`ThreatTypeChoices.ADVERSARIAL` …, `CapabilityChoices.HIGH` …) used by the test suite
+* Tests: `ChangeLoggedFilterSetTestMixin` (renamed in NetBox 4.7), list-valued filter parameters,
+  recorded NetBox 4.7 query-count baselines (`tests/query_counts.json`)
+
 ## 45.6.0 (22/05/2026)
 
 * Migrate `sync_kev` and `sync_epss` to NetBox `JobRunner` background jobs (`SyncKEVJob`, `SyncEPSSJob`)

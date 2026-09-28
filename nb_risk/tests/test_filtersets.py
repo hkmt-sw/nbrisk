@@ -29,7 +29,7 @@ class ThreatSourceFilterSetTestCase(TestCase):
         )
 
     def test_filter_by_name(self):
-        fs = ThreatSourceFilterSet({'name': 'Nation'}, queryset=ThreatSource.objects.all())
+        fs = ThreatSourceFilterSet({'name': ['Nation State']}, queryset=ThreatSource.objects.all())
         self.assertEqual(fs.qs.count(), 1)
 
     def test_filter_by_threat_type(self):
@@ -56,7 +56,7 @@ class VulnerabilityFilterSetTestCase(TestCase):
 
     def test_filter_by_cve(self):
         fs = VulnerabilityFilterSet(
-            {'cve': 'CVE-2021-44228'},
+            {'cve': ['CVE-2021-44228']},
             queryset=Vulnerability.objects.all(),
         )
         self.assertEqual(fs.qs.count(), 1)
@@ -100,7 +100,7 @@ class CPEMappingFilterSetTestCase(TestCase):
 
     def test_filter_by_vendor(self):
         fs = CPEMappingFilterSet(
-            {'cpe_vendor': 'cisco'},
+            {'cpe_vendor': ['cisco']},
             queryset=CPEMapping.objects.all(),
         )
         self.assertEqual(fs.qs.count(), 1)

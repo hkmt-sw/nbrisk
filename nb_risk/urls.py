@@ -14,7 +14,8 @@ urlpatterns = (
     path('threat-source/<int:pk>/', include(get_model_urls(app_name, 'threatsource'))),
     path("threat-source/<int:pk>/edit/",views.ThreatSourceEditView.as_view(),name="threatsource_edit"),
     path("threat-source/<int:pk>/delete/",views.ThreatSourceDeleteView.as_view(), name="threatsource_delete"),
-    path('threat-source/import/', views.ThreatSourceImportView.as_view(), name='threatsource_import'),
+    path('threat-source/import/', views.ThreatSourceImportView.as_view(), name='threatsource_bulk_import'),
+    path('threat-source/import/', views.ThreatSourceImportView.as_view(), name='threatsource_import'),  # régi név, visszafelé kompatibilitás
     path('threat-source/edit/', views.ThreatSourceBulkEditView.as_view(), name='threatsource_bulk_edit'),
     path('threat-source/delete/', views.ThreatSourceBulkDeleteView.as_view(), name='threatsource_bulk_delete'),
 
@@ -32,7 +33,8 @@ urlpatterns = (
     path("vulnerability/add/", views.VulnerabilityEditView.as_view(), name="vulnerability_add",),
     path("vulnerability/<int:pk>/", views.VulnerabilityView.as_view(), name="vulnerability",),
     path("vulnerability/<int:pk>/edit/", views.VulnerabilityEditView.as_view(), name="vulnerability_edit",),
-    path('vulnerability/import/', views.VulnerabilityBulkImportView.as_view(), name='vulnerability_import'),
+    path('vulnerability/import/', views.VulnerabilityBulkImportView.as_view(), name='vulnerability_bulk_import'),
+    path('vulnerability/import/', views.VulnerabilityBulkImportView.as_view(), name='vulnerability_import'),  # régi név, visszafelé kompatibilitás
     path("vulnerability/<int:pk>/delete/", views.VulnerabilityDeleteView.as_view(), name="vulnerability_delete",),
     path("vulnerability/delete/", views.VulnerabilityBulkDeleteView.as_view(), name="vulnerability_bulk_delete",),
     path('vulnerability/<int:pk>/', include(get_model_urls(app_name, 'vulnerability'))),
@@ -45,12 +47,14 @@ urlpatterns = (
     path("vulnerability-assignments/<int:pk>/delete/", views.VulnerabilityAssignmentDeleteView.as_view(), name="vulnerabilityassignment_delete",),
     path("vulnerability-assignments/<int:pk>/edit/", views.VulnerabilityAssignmentEditView.as_view(), name="vulnerabilityassignment_edit",),
     path('vulnerability-assignments/<int:pk>/', include(get_model_urls(app_name, 'vulnerabilityassignment'))),
-    path('vulnerability-assignments/import/', views.VulnerabilityAssignmentImportView.as_view(), name='vulnerabilityassignment_import'),
+    path('vulnerability-assignments/import/', views.VulnerabilityAssignmentImportView.as_view(), name='vulnerabilityassignment_bulk_import'),
+    path('vulnerability-assignments/import/', views.VulnerabilityAssignmentImportView.as_view(), name='vulnerabilityassignment_import'),  # régi név, visszafelé kompatibilitás
     
     # CPEMapping URLs
     path('cpe-mappings/', views.CPEMappingListView.as_view(), name='cpemapping_list'),
     path('cpe-mappings/add/', views.CPEMappingEditView.as_view(), name='cpemapping_add'),
-    path('cpe-mappings/import/', views.CPEMappingImportView.as_view(), name='cpemapping_import'),
+    path('cpe-mappings/import/', views.CPEMappingImportView.as_view(), name='cpemapping_bulk_import'),
+    path('cpe-mappings/import/', views.CPEMappingImportView.as_view(), name='cpemapping_import'),  # régi név, visszafelé kompatibilitás
     path('cpe-mappings/delete/', views.CPEMappingBulkDeleteView.as_view(), name='cpemapping_bulk_delete'),
     path('cpe-mappings/<int:pk>/', views.CPEMappingView.as_view(), name='cpemapping'),
     path('cpe-mappings/<int:pk>/edit/', views.CPEMappingEditView.as_view(), name='cpemapping_edit'),

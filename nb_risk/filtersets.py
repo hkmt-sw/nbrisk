@@ -1,12 +1,14 @@
 from netbox.filtersets import NetBoxModelFilterSet
 from django.db.models import Q
 import django_filters
-from . import models
+from . import choices, models
 
 # ThreatSource Filters
 
 
 class ThreatSourceFilterSet(NetBoxModelFilterSet):
+    threat_type = django_filters.MultipleChoiceFilter(choices=choices.ThreatTypeChoices, null_value=None)
+    capability = django_filters.MultipleChoiceFilter(choices=choices.CapabilityChoices, null_value=None)
     class Meta:
         model = models.ThreatSource
         fields = ["id", "name", "threat_type", "capability", "intent", "targeting", "description", "notes"]
@@ -16,6 +18,9 @@ class ThreatSourceFilterSet(NetBoxModelFilterSet):
 
 
 class ThreatEventFilterSet(NetBoxModelFilterSet):
+    relevance = django_filters.MultipleChoiceFilter(choices=choices.RelevanceChoices, null_value=None)
+    likelihood = django_filters.MultipleChoiceFilter(choices=choices.LikelihoodChoices, null_value=None)
+    impact = django_filters.MultipleChoiceFilter(choices=choices.ImpactChoices, null_value=None)
     class Meta:
         model = models.ThreatEvent
         fields = ["threat_source", "relevance", "likelihood", "impact"]
@@ -43,6 +48,15 @@ class VulnerabilityFilterSet(NetBoxModelFilterSet):
             "cvssintegrityImpact",
             "cvssavailabilityImpact",
             "cvssbaseScore",
+            "kev_date_added",
+            "kev_ransomware_use",
+            "kev_required_action",
+            "kev_due_date",
+            "kev_vendor_project",
+            "kev_product",
+            "epss_score",
+            "epss_percentile",
+            "epss_date",
             ]
 
     def search(self, queryset, name, value):
@@ -79,6 +93,8 @@ class VulnerabilityAssignmentFilterSet(NetBoxModelFilterSet):
 
 
 class RiskFilterSet(NetBoxModelFilterSet):
+    likelihood = django_filters.MultipleChoiceFilter(choices=choices.LikelihoodChoices, null_value=None)
+    impact = django_filters.MultipleChoiceFilter(choices=choices.ImpactChoices, null_value=None)
     class Meta:
         model = models.Risk
         fields = ["name", "threat_event", "description", "impact", "likelihood"]
@@ -86,6 +102,7 @@ class RiskFilterSet(NetBoxModelFilterSet):
 # Control Filters
 
 class ControlFilterSet(NetBoxModelFilterSet):
+    category = django_filters.MultipleChoiceFilter(choices=choices.ControlCategoryChoices, null_value=None)
     class Meta:
         model = models.Control
         fields = [
@@ -99,6 +116,7 @@ class ControlFilterSet(NetBoxModelFilterSet):
 # CPEMapping FilterSet
 
 class CPEMappingFilterSet(NetBoxModelFilterSet):
+    cpe_part = django_filters.MultipleChoiceFilter(choices=models.CPE_PART_CHOICES, null_value=None)
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=__import__('dcim.models', fromlist=['Platform']).Platform.objects.all(),
     )

@@ -1,1 +1,2 @@
 recursive-include nb_risk/templates *.html
+include nb_risk/tests/query_counts.json

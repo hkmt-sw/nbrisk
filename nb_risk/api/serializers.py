@@ -1,3 +1,4 @@
+from dcim.api.serializers import DeviceTypeSerializer, PlatformSerializer
 from rest_framework import serializers
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
@@ -77,6 +78,28 @@ class VulnerabilitySerializer(NetBoxModelSerializer):
             "name",
             "cve",
             "description",
+            "notes",
+            "in_kev",
+            "kev_date_added",
+            "kev_ransomware_use",
+            "kev_required_action",
+            "kev_due_date",
+            "kev_vendor_project",
+            "kev_product",
+            "epss_score",
+            "epss_percentile",
+            "epss_date",
+            "cvssaccessVector",
+            "cvssaccessComplexity",
+            "cvssauthentication",
+            "cvssconfidentialityImpact",
+            "cvssintegrityImpact",
+            "cvssavailabilityImpact",
+            "cvssbaseScore",
+            "tags",
+            "custom_fields",
+            "created",
+            "last_updated",
         ]
         brief_fields = ['id', 'url', 'display', 'name', 'description']
 
@@ -176,21 +199,13 @@ class ControlSerializer(NetBoxModelSerializer):
 class CPEMappingSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:nb_risk-api:cpemapping-detail")
     display = serializers.SerializerMethodField('get_display')
-    platform = serializers.SerializerMethodField()
-    device_type = serializers.SerializerMethodField()
+    # Írható beágyazott hivatkozások (pk vagy {"id": ...} is megadható); korábban csak olvasható
+    # metódusmezők voltak, ezért API-n nem lehetett CPE-hozzárendelést létrehozni.
+    platform = PlatformSerializer(nested=True, required=False, allow_null=True)
+    device_type = DeviceTypeSerializer(nested=True, required=False, allow_null=True)
 
     def get_display(self, obj):
         return str(obj)
-
-    def get_platform(self, obj):
-        if obj.platform:
-            return {'id': obj.platform.pk, 'name': obj.platform.name}
-        return None
-
-    def get_device_type(self, obj):
-        if obj.device_type:
-            return {'id': obj.device_type.pk, 'model': obj.device_type.model}
-        return None
 
     class Meta:
         model = models.CPEMapping

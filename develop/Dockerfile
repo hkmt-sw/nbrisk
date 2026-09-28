@@ -1,7 +1,7 @@
 ARG python_ver=3.12
 FROM python:${python_ver}
 
-ARG netbox_ver=v4.5.9
+ARG netbox_ver=v4.7.1
 ENV PYTHONUNBUFFERED 1
 
 RUN mkdir -p /opt

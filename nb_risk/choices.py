@@ -9,6 +9,12 @@ class ThreatTypeChoices(ChoiceSet):
     THREAT_TYPE_3 = "STRUCTURAL"
     THREAT_TYPE_4 = "ENVIRONMENTAL"
 
+    # Beszédes álnevek (a tesztek és a külső kód ezeket használják)
+    ADVERSARIAL = THREAT_TYPE_1
+    ACCIDENTAL = THREAT_TYPE_2
+    STRUCTURAL = THREAT_TYPE_3
+    ENVIRONMENTAL = THREAT_TYPE_4
+
     CHOICES = (
         (THREAT_TYPE_1, "ADVERSARIAL"),
         (THREAT_TYPE_2, "ACCIDENTAL"),
@@ -25,6 +31,14 @@ class CapabilityChoices(ChoiceSet):
     CAPABILITY_3 = "Moderate"
     CAPABILITY_4 = "Low"
     CAPABILITY_5 = "Very Low"
+
+    # Beszédes álnevek
+    VERY_HIGH = CAPABILITY_1
+    HIGH = CAPABILITY_2
+    MODERATE = CAPABILITY_3
+    MEDIUM = CAPABILITY_3
+    LOW = CAPABILITY_4
+    VERY_LOW = CAPABILITY_5
 
     CHOICES = (
         (CAPABILITY_1, "Very High"),
@@ -47,6 +61,15 @@ class RelevanceChoices(ChoiceSet):
     RELEVANCE_5 = "Possible"
     RELEVANCE_6 = "N/A"
 
+    # Beszédes álnevek
+    CONFIRMED = RELEVANCE_1
+    RELEVANT = RELEVANCE_1
+    EXPECTED = RELEVANCE_2
+    ANTICIPATED = RELEVANCE_3
+    PREDICTED = RELEVANCE_4
+    POSSIBLE = RELEVANCE_5
+    NOT_APPLICABLE = RELEVANCE_6
+
     CHOICES = (
         (RELEVANCE_1, "Confirmed"),
         (RELEVANCE_2, "Expected"),
@@ -68,6 +91,14 @@ class LikelihoodChoices(ChoiceSet):
     LIKELIHOOD_4 = "Low"
     LIKELIHOOD_5 = "Very Low"
 
+    # Beszédes álnevek
+    VERY_HIGH = LIKELIHOOD_1
+    HIGH = LIKELIHOOD_2
+    MODERATE = LIKELIHOOD_3
+    MEDIUM = LIKELIHOOD_3
+    LOW = LIKELIHOOD_4
+    VERY_LOW = LIKELIHOOD_5
+
     CHOICES = (
         (LIKELIHOOD_1, "Very High"),
         (LIKELIHOOD_2, "High"),
@@ -87,6 +118,14 @@ class ImpactChoices(ChoiceSet):
     IMPACT_3 = "Moderate"
     IMPACT_4 = "Low"
     IMPACT_5 = "Very Low"
+
+    # Beszédes álnevek
+    VERY_HIGH = IMPACT_1
+    HIGH = IMPACT_2
+    MODERATE = IMPACT_3
+    MEDIUM = IMPACT_3
+    LOW = IMPACT_4
+    VERY_LOW = IMPACT_5
 
     CHOICES = (
         (IMPACT_1, "Very High"),

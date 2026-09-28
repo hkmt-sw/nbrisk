@@ -11,8 +11,8 @@ class NbriskConfig(PluginConfig):
     version = __version__
     author = "Blake Parker"
     author_email = "blake.parker@e280.com"
-    min_version = "4.5.0"
-    max_version = "4.5.99"
+    min_version = "4.7.0"
+    max_version = "4.7.99"
     required_settings = []
     default_settings = {
         "supported_assets": [

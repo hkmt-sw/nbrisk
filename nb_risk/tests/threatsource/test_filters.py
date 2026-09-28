@@ -1,13 +1,13 @@
 from django.test import TestCase
 
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTestMixin
 
 from nb_risk.models import ThreatSource
 from nb_risk.filtersets import ThreatSourceFilterSet
 from nb_risk import choices
 
 
-class ThreatSourceFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ThreatSourceFilterTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ThreatSource.objects.all()
     filterset = ThreatSourceFilterSet
 
@@ -52,5 +52,5 @@ class ThreatSourceFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_capability_none(self):
-        params = {"capability": choices.CapabilityChoices.CAPABILITY_2}
+        params = {"capability": [choices.CapabilityChoices.CAPABILITY_2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
