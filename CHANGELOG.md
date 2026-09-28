@@ -1,5 +1,12 @@
 # Changelog
 
+## 47.0.2 (28/09/2026)
+
+* Fix regression from 47.0.1: the accepted asset types are now taken from `PLUGINS_CONFIG`
+  (`supported_assets` + `additional_assets`, by default device, virtual machine, tenant and site) instead of the
+  hard-coded device / virtual machine list, so the *Add Vulnerability* button works again on tenant and site
+  pages (and on any `additional_assets` model). The API accepts the same types.
+
 ## 47.0.1 (28/09/2026)
 
 Security fix: vulnerability assignments could reference arbitrary objects.

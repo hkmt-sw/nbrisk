@@ -214,10 +214,27 @@ class VulnerabilityAssignmentEditViewTestCase(TestCase):
 
     def test_add_view_unsupported_type_returns_404(self):
         from core.models import ObjectType
-        from dcim.models import Site
+        from dcim.models import Manufacturer
+        from users.models import ObjectPermission
 
-        response = self.client.get(self._url(ObjectType.objects.get_for_model(Site).pk, self.site.pk))
+        perm = ObjectPermission.objects.create(name='View manufacturers', actions=['view'])
+        perm.object_types.add(ObjectType.objects.get_for_model(Manufacturer))
+        perm.users.add(self.user)
+        manufacturer = Manufacturer.objects.first()
+        response = self.client.get(self._url(ObjectType.objects.get_for_model(Manufacturer).pk, manufacturer.pk))
         self.assertEqual(response.status_code, 404)
+
+    def test_add_view_configured_site_asset(self):
+        # dcim.site is in the default supported_assets, so its "Add Vulnerability" button must work
+        from core.models import ObjectType
+        from dcim.models import Site
+        from users.models import ObjectPermission
+
+        perm = ObjectPermission.objects.create(name='View sites', actions=['view'])
+        perm.object_types.add(ObjectType.objects.get_for_model(Site))
+        perm.users.add(self.user)
+        response = self.client.get(self._url(ObjectType.objects.get_for_model(Site).pk, self.site.pk))
+        self.assertEqual(response.status_code, 200)
 
     def test_post_body_cannot_override_asset(self):
         from nb_risk.models import VulnerabilityAssignment

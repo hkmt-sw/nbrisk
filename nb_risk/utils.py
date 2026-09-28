@@ -1,16 +1,30 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from netbox.context import current_request
-
-from . import choices
+from netbox.plugins.utils import get_plugin_config
 
 ASSET_NOT_FOUND = "Asset not found or not a supported asset type."
 
 
+def asset_types_q():
+    """
+    Q object matching the asset types configured in PLUGINS_CONFIG (supported_assets + additional_assets).
+    These are the models that show the "Add Vulnerability" button.
+    """
+    labels = (get_plugin_config('nb_risk', 'supported_assets') or []) + \
+        (get_plugin_config('nb_risk', 'additional_assets') or [])
+    q = Q(pk__in=[])
+    for label in labels:
+        app_label, _, model = label.partition('.')
+        q |= Q(app_label=app_label, model=model.lower())
+    return q
+
+
 def supported_asset_types():
-    """Content types that can carry a vulnerability assignment (see choices.AssetTypes)."""
-    return ContentType.objects.filter(choices.AssetTypes)
+    """Content types that can carry a vulnerability assignment."""
+    return ContentType.objects.filter(asset_types_q())
 
 
 def get_asset(object_type, asset_id, user=None):

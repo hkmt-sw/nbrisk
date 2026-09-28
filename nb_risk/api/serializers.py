@@ -7,7 +7,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 from core.models import ObjectType
 
 from .. import models, choices
-from ..utils import get_asset
+from ..utils import asset_types_q, get_asset
 
 # ThreatSource Serializers
 
@@ -112,10 +112,10 @@ class VulnerabilityAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:nb_risk-api:vulnerabilityassignment-detail")
     display = serializers.SerializerMethodField('get_display')
 
-    # Use ObjectType (NetBox wrapper) filtered via the AssetTypes Q object for the content type field.
+    # Limited to the asset types configured in PLUGINS_CONFIG (supported_assets + additional_assets).
     # Pass the Q object correctly as a positional filter argument.
     asset_object_type = ContentTypeField(
-        queryset=ObjectType.objects.filter(choices.AssetTypes),
+        queryset=ObjectType.objects.filter(asset_types_q()),
         required=True,
     )
 
