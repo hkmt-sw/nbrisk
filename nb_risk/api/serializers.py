@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from dcim.api.serializers import DeviceTypeSerializer, PlatformSerializer
 from rest_framework import serializers
 from netbox.api.fields import ChoiceField, ContentTypeField
@@ -6,6 +7,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 from core.models import ObjectType
 
 from .. import models, choices
+from ..utils import get_asset
 
 # ThreatSource Serializers
 
@@ -125,10 +127,15 @@ class VulnerabilityAssignmentSerializer(NetBoxModelSerializer):
     asset_id = serializers.IntegerField(write_only=True)
 
     def validate(self, data):
-        asset_id = data.get('asset_id')
-        asset_object_type = data.get('asset_object_type')
-        if asset_id and asset_object_type:
-            asset = asset_object_type.get_object_for_this_type(id=asset_id)
+        # The asset must be a supported type and visible to the requesting user (object-level permissions).
+        asset_object_type = data.get('asset_object_type', getattr(self.instance, 'asset_object_type', None))
+        asset_id = data.get('asset_id', getattr(self.instance, 'asset_id', None))
+        if 'asset_object_type' in data or 'asset_id' in data or self.instance is None:
+            request = self.context.get('request')
+            try:
+                asset = get_asset(asset_object_type, asset_id, user=getattr(request, 'user', None))
+            except DjangoValidationError as e:
+                raise serializers.ValidationError({'asset_id': e.messages})
             data['asset_id'] = asset.pk
         return super().validate(data)
 
@@ -199,8 +206,8 @@ class ControlSerializer(NetBoxModelSerializer):
 class CPEMappingSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:nb_risk-api:cpemapping-detail")
     display = serializers.SerializerMethodField('get_display')
-    # Írható beágyazott hivatkozások (pk vagy {"id": ...} is megadható); korábban csak olvasható
-    # metódusmezők voltak, ezért API-n nem lehetett CPE-hozzárendelést létrehozni.
+    # Writable nested references (a pk or {"id": ...} is accepted). These used to be read-only method
+    # fields, so CPE mappings could not be created through the API.
     platform = PlatformSerializer(nested=True, required=False, allow_null=True)
     device_type = DeviceTypeSerializer(nested=True, required=False, allow_null=True)
 

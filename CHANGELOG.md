@@ -1,5 +1,20 @@
 # Changelog
 
+## 47.0.1 (28/09/2026)
+
+Security fix: vulnerability assignments could reference arbitrary objects.
+
+* API: creating or updating a `VulnerabilityAssignment` now requires the asset to be a supported asset type
+  (device, virtual machine) **and** visible to the requesting user (object-level `view` permission).
+  Before, any object of any content type could be referenced by ID, disclosing its name through the
+  assignment's `asset` / `display` fields; a non-existent `asset_id` raised a 500 instead of a 400.
+* UI: the *Add vulnerability* view resolves the asset from the query string with the same checks (404 otherwise);
+  the asset is no longer accepted from the POST body (hidden form fields could override it).
+* Bulk import: `asset_object_type` is limited to supported asset types, the asset (or the parent of the given
+  IP address) must be visible to the importing user, and a row without an asset is rejected.
+* Tests: API and view regression tests for hidden, missing and unsupported assets.
+* Code comments translated to English.
+
 ## 47.0.0 (28/09/2026)
 
 NetBox 4.7 support (fork: hkmt-sw/nbrisk).

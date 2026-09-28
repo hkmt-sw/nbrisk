@@ -9,7 +9,7 @@ class ThreatTypeChoices(ChoiceSet):
     THREAT_TYPE_3 = "STRUCTURAL"
     THREAT_TYPE_4 = "ENVIRONMENTAL"
 
-    # Beszédes álnevek (a tesztek és a külső kód ezeket használják)
+    # Descriptive aliases (used by the tests and by external code)
     ADVERSARIAL = THREAT_TYPE_1
     ACCIDENTAL = THREAT_TYPE_2
     STRUCTURAL = THREAT_TYPE_3
@@ -32,7 +32,7 @@ class CapabilityChoices(ChoiceSet):
     CAPABILITY_4 = "Low"
     CAPABILITY_5 = "Very Low"
 
-    # Beszédes álnevek
+    # Descriptive aliases
     VERY_HIGH = CAPABILITY_1
     HIGH = CAPABILITY_2
     MODERATE = CAPABILITY_3
@@ -61,7 +61,7 @@ class RelevanceChoices(ChoiceSet):
     RELEVANCE_5 = "Possible"
     RELEVANCE_6 = "N/A"
 
-    # Beszédes álnevek
+    # Descriptive aliases
     CONFIRMED = RELEVANCE_1
     RELEVANT = RELEVANCE_1
     EXPECTED = RELEVANCE_2
@@ -91,7 +91,7 @@ class LikelihoodChoices(ChoiceSet):
     LIKELIHOOD_4 = "Low"
     LIKELIHOOD_5 = "Very Low"
 
-    # Beszédes álnevek
+    # Descriptive aliases
     VERY_HIGH = LIKELIHOOD_1
     HIGH = LIKELIHOOD_2
     MODERATE = LIKELIHOOD_3
@@ -119,7 +119,7 @@ class ImpactChoices(ChoiceSet):
     IMPACT_4 = "Low"
     IMPACT_5 = "Very Low"
 
-    # Beszédes álnevek
+    # Descriptive aliases
     VERY_HIGH = IMPACT_1
     HIGH = IMPACT_2
     MODERATE = IMPACT_3

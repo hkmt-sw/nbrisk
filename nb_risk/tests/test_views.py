@@ -160,3 +160,73 @@ class ControlViewTestCase(BaseViewTestCase):
         url = reverse('plugins:nb_risk:control', kwargs={'pk': self.control.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+
+class VulnerabilityAssignmentEditViewTestCase(TestCase):
+    """The add view only accepts supported assets the user may view, and takes the asset from the query string."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        role = DeviceRole.objects.create(name='Role 1', slug='role-1')
+        cls.site = site
+        cls.visible = Device.objects.create(name='Visible', device_type=device_type, role=role, site=site)
+        cls.hidden = Device.objects.create(name='Hidden', device_type=device_type, role=role, site=site)
+        cls.vulnerability = Vulnerability.objects.create(name='Vulnerability 1', cve='CVE-2021-1234')
+
+    def setUp(self):
+        from core.models import ObjectType
+        from dcim.models import Device
+        from users.models import ObjectPermission
+        from nb_risk.models import VulnerabilityAssignment
+
+        self.user = User.objects.create_user(username='assignmentuser', password='testpassword')
+        add = ObjectPermission.objects.create(name='Add assignments', actions=['add', 'view'])
+        add.object_types.add(ObjectType.objects.get_for_model(VulnerabilityAssignment))
+        add.users.add(self.user)
+        view = ObjectPermission.objects.create(
+            name='View one device', actions=['view'], constraints={'name': 'Visible'}
+        )
+        view.object_types.add(ObjectType.objects.get_for_model(Device))
+        view.users.add(self.user)
+        vulns = ObjectPermission.objects.create(name='View vulnerabilities', actions=['view'])
+        vulns.object_types.add(ObjectType.objects.get_for_model(Vulnerability))
+        vulns.users.add(self.user)
+        self.client = Client()
+        self.client.force_login(self.user)
+        self.device_ct = ObjectType.objects.get_for_model(Device).pk
+
+    def _url(self, object_type, asset_id):
+        return (reverse('plugins:nb_risk:vulnerabilityassignment_add')
+                + f'?asset_object_type={object_type}&asset_id={asset_id}')
+
+    def test_add_view_visible_asset(self):
+        response = self.client.get(self._url(self.device_ct, self.visible.pk))
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_view_hidden_asset_returns_404(self):
+        response = self.client.get(self._url(self.device_ct, self.hidden.pk))
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_view_unsupported_type_returns_404(self):
+        from core.models import ObjectType
+        from dcim.models import Site
+
+        response = self.client.get(self._url(ObjectType.objects.get_for_model(Site).pk, self.site.pk))
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_body_cannot_override_asset(self):
+        from nb_risk.models import VulnerabilityAssignment
+
+        response = self.client.post(self._url(self.device_ct, self.visible.pk), {
+            'vulnerability': self.vulnerability.pk,
+            'asset_object_type': self.device_ct,
+            'asset_id': self.hidden.pk,
+        })
+        self.assertIn(response.status_code, (200, 302))
+        self.assertFalse(VulnerabilityAssignment.objects.filter(asset_id=self.hidden.pk).exists())
+        self.assertTrue(VulnerabilityAssignment.objects.filter(asset_id=self.visible.pk).exists())

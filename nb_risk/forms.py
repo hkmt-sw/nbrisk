@@ -20,6 +20,7 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 
 from . import models, choices
+from .utils import get_asset, supported_asset_types
 
 # ThreatSource Forms
 
@@ -196,11 +197,9 @@ class VulnerabilityAssignmentForm(forms.ModelForm):
 
     class Meta:
         model = models.VulnerabilityAssignment
-        fields = ["asset_object_type", "asset_id", "vulnerability"]
-        widgets = {
-            "asset_object_type": forms.HiddenInput(),
-            "asset_id": forms.HiddenInput(),
-        }
+        # The asset is set by the view from the query string (after a permission check) and is not
+        # accepted from the POST body.
+        fields = ["vulnerability"]
 
 
 class VulnerabilityAssignmentFilterForm(NetBoxModelFilterSetForm):
@@ -224,7 +223,7 @@ class VulnerabilityAssignmentImportForm(NetBoxModelImportForm):
     )
 
     asset_object_type = CSVContentTypeField(
-        queryset=ContentType.objects.all(),
+        queryset=supported_asset_types(),
         help_text= "Assigned object types",
         required=False,
     )
@@ -249,6 +248,11 @@ class VulnerabilityAssignmentImportForm(NetBoxModelImportForm):
             raise forms.ValidationError(
                 "Asset Data and IP Address cannot be assigned at the same time"
             )
+        if ip_address is None and not (asset_type and asset_id):
+            raise forms.ValidationError("Either Asset Data or IP Address must be given")
+        if ip_address is None:
+            # supported asset type, visible to the importing user
+            get_asset(asset_type, asset_id)
         if ip_address is not None:
             if not ip_address.assigned_object:
                 raise forms.ValidationError(
@@ -256,9 +260,14 @@ class VulnerabilityAssignmentImportForm(NetBoxModelImportForm):
                 )
             else:
                 parent = ip_address.assigned_object.parent_object
-                if parent is not None:
+                if parent is None:
+                    raise forms.ValidationError(
+                        f"IP Address ({ip_address}) is not assigned to a supported asset"
+                    )
+                else:
                     asset_type = ContentType.objects.get_for_model(parent)
                     asset_id = parent.id
+                    get_asset(asset_type, asset_id)
                     if models.VulnerabilityAssignment.objects.filter(asset_object_type=asset_type, asset_id=asset_id, vulnerability=vuln).exists():
                         raise forms.ValidationError(
                             f"Vulnerability {vuln} is already assigned to {ip_address} asset object {parent}"

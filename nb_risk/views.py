@@ -12,6 +12,7 @@ from ipam.models import IPAddress
 
 from netbox.plugins.utils import get_plugin_config
 from utilities.views import ViewTab, register_model_view
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
@@ -20,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from . import forms, models, tables, filtersets, custom_views
+from .utils import ASSET_NOT_FOUND, get_asset, supported_asset_types
 
 # ThreatSource Views
 
@@ -207,13 +209,17 @@ class VulnerabilityAssignmentEditView(custom_views.GetReturnURLMixin, generic.Ob
     def alter_object(self, instance, request, args, kwargs):
 
         if not instance.pk:
-            # Assign the object based on URL kwargs
+            # Assign the object based on URL kwargs. Only supported asset types, and only objects the user
+            # may view; the form does not accept the asset from the POST body.
             content_type = get_object_or_404(
-                ContentType, pk=request.GET.get("asset_object_type")
+                supported_asset_types(), pk=request.GET.get("asset_object_type")
             )
-            instance.object = get_object_or_404(
-                content_type.model_class(), pk=request.GET.get("asset_id")
-            )
+            try:
+                asset = get_asset(content_type, request.GET.get("asset_id"), user=request.user)
+            except ValidationError:
+                raise Http404(ASSET_NOT_FOUND)
+            instance.asset = asset
+            instance.object = asset
         else:
             instance.object = instance.asset
         return instance
@@ -248,6 +254,8 @@ class VulnerabilityAssignmentImportView(generic.BulkImportView):
         if object_form.cleaned_data["ip_address"] is not None:
             ip_address = object_form.cleaned_data["ip_address"]
             parent = ip_address.assigned_object.parent_object
+            # the parent must be a supported asset visible to the user (the form has checked it already)
+            parent = get_asset(ContentType.objects.get_for_model(parent), parent.pk, user=request.user)
             vulnAssingment = models.VulnerabilityAssignment(
                 vulnerability=object_form.cleaned_data["vulnerability"],
                 asset = parent,

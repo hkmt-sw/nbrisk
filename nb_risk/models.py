@@ -191,9 +191,9 @@ class VulnerabilityAssignment(NetBoxModel):
    
 
     def get_absolute_url(self):
-        # A hozzárendelésnek nincs saját részletező oldala: a sebezhetőség „Affected Assets” fülére mutatunk.
-        # (A NetBoxModel alapértelmezése egy nem létező nézetre hivatkozna, ami a változásnaplóban és a
-        # keresésben NoReverseMatch hibát okozna.)
+        # An assignment has no detail page of its own, so link to the vulnerability's "Affected Assets" tab.
+        # (The NetBoxModel default would reverse a non-existent view and raise NoReverseMatch in the
+        # changelog and in search results.)
         return reverse('plugins:nb_risk:vulnerability_affected_assets', kwargs={'pk': self.vulnerability_id})
 
     class Meta:
